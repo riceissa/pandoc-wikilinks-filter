@@ -125,25 +125,19 @@ def walk(x):
         # like a wikilink and convert them to a Link, and not touch anything
         # else
         array = []
-        # In case we don't encounter a "]]" later, we'll have to
-        # append all the elements we _thought_ were going into a
-        # wikilink, so save them just in case
+        # Save up Str and Space elements in a list to process them in bulk
+        # (it's way easier to parse wikilinks if each piece of text is all in
+        # one place instead of being broken up by Str elements).
         saved_elements = []
         for item in x:
-            if isinstance(item, dict) and 't' in item:
-                if item['t'] in ['Str', 'Space']:
-                    saved_elements.append(item)
-                else:
-                    # process the saved elements
-                    array.extend(f(saved_elements))
-                    saved_elements = []
-                    array.append(walk(item))
+            if isinstance(item, dict) and 't' in item and item['t'] in ['Str', 'Space']:
+                saved_elements.append(item)
             else:
+                # Process the saved elements
                 array.extend(f(saved_elements))
                 saved_elements = []
+
                 array.append(walk(item))
-        # If an unclosed wikilink is the last thing in the file, there is still
-        # some saved elements that haven't been added to the array
         array.extend(f(saved_elements))
         return array
     elif isinstance(x, dict):

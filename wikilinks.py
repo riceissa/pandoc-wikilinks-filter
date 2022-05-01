@@ -4,6 +4,9 @@ import json
 import sys
 import io
 
+def slugify(string):
+    return string.lower().replace(" ", "-")
+
 def wikilinked(source):
     doc = json.loads(source)
 
@@ -21,32 +24,42 @@ def walk(x):
         # like a wikilink and convert them to a Link, and not touch anything
         # else
         array = []
-        i = 0
+        saved_elements = []
         state = "free"
         for item in x:
             if isinstance(item, dict) and 't' in item:
                 if item['t'] == 'Str' and item['c'].startswith("[["):
                     state = "in"
                     wikilink_text = item['c'][len("[["):]
+                    # In case we don't encounter a "]]" later, we'll have to
+                    # append all the elements we _thought_ were going into a
+                    # wikilink, so save them just in case
+                    array.extend(saved_elements)
+                    saved_elements = [item]
                 elif item['t'] == 'Str' and state == "in" and item['c'].endswith("]]"):
-                    wikilink_text += item['c'][:len("]]")]
+                    wikilink_text += item['c'][:-len("]]")]
                     new_element = {'t': 'Link',
                                    'c': [["",[],[]],
                                          [{"t":"Str", "c": wikilink_text}],
-                                         ["https://issarice.com",""]]}
+                                         ["https://issarice.com/" + slugify(wikilink_text),""]]}
                     array.append(new_element)
                     wikilink_text = None
+                    saved_elements = []
                     state = "free"
                 elif item['t'] not in ['Str', 'Space']:
                     state = "free"
                     wikilink_text = None
+                    array.extend(saved_elements)
+                    saved_elements = []
                     array.append(walk(item))
                 elif item['t'] == 'Space' and state == "in":
+                    saved_elements.append(item)
                     wikilink_text += " "
                 elif item['t'] == 'Str' and state == "in":
+                    saved_elements.append(item)
                     wikilink_text += item['c']
                 elif item['t'] in ['Str', 'Space'] and state == "free":
-                    pass
+                    array.append(item)
                 else:
                     raise ValueError("Unknown thing")
             else:

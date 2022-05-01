@@ -3,6 +3,7 @@
 import json
 import sys
 import io
+import re
 
 def link(link_text, url):
     return {
@@ -17,11 +18,33 @@ def link(link_text, url):
 def slugify(string):
     return string.lower().replace(" ", "-")
 
-def is_wikilink_start(string):
-    return string.startswith("[[")
+# TODO: hmm, what about things like "[[lol]][[blah]]"?
+# also things like "[[work]]ed"
+# also things like "[[test|hello]]"
+def wikilink_whole(string):
+    '''If string is a whole wikilink (i.e., includes both the opening and
+    closing brackets), then return the wikilinked text as a dictionary, with
+    the surrounding text preserved separately. Otherwise, return an empty
+    dictionary.'''
+    m = re.match(r'([^\[]*)\[\[([^\[\]]+)\]\](.*)$', string)
+    if m:
+        return {"before": group(1), "text": m.group(2), "after": m.group(3)}
+    else:
+        return ""
 
-def is_wikilink_end(string):
-    return string.endswith("]]")
+def wikilink_start(string):
+    m = re.match(r'[^\[]*\[\[([^\[]+)$', string)
+    if m:
+        return m.group(1)
+    else:
+        return ""
+
+def wikilink_end(string):
+    m = re.match(r'([^\]]*)\]\]', string)
+    if m:
+        return m.group(1)
+    else:
+        return ""
 
 def wikilinked(source):
     doc = json.loads(source)
@@ -48,20 +71,20 @@ def walk(x):
         state = "free"
         for item in x:
             if isinstance(item, dict) and 't' in item:
-                if item['t'] == 'Str' and is_wikilink_start(item['c']) and is_wikilink_end(item['c']):
+                if item['t'] == 'Str' and wikilink_whole(item['c']):
                     array.extend(saved_elements)
-                    wikilink_text = item['c'][len("[["):-len("]]")]
+                    wikilink_text = wikilink_whole(item['c'])
                     new_element = link(wikilink_text, "https://issarice.com/" + slugify(wikilink_text))
                     array.append(new_element)
                     saved_elements = []
                     state = "free"
-                elif item['t'] == 'Str' and is_wikilink_start(item['c']):
+                elif item['t'] == 'Str' and wikilink_start(item['c']):
                     state = "in"
-                    wikilink_text = item['c'][len("[["):]
+                    wikilink_text = wikilink_start(item['c'])
                     array.extend(saved_elements)
                     saved_elements = [item]
-                elif item['t'] == 'Str' and state == "in" and is_wikilink_end(item['c']):
-                    wikilink_text += item['c'][:-len("]]")]
+                elif item['t'] == 'Str' and state == "in" and wikilink_end(item['c']):
+                    wikilink_text += wikilink_end(item['c'])
                     new_element = link(wikilink_text, "https://issarice.com/" + slugify(wikilink_text))
                     array.append(new_element)
                     wikilink_text = None

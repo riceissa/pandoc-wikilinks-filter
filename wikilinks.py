@@ -34,7 +34,6 @@ def wikilinked(source):
 
 '''
 two bugs:
-    - if a wikilink is a single word (opens and closes in same token), it doesn't work
     - if wikilink is the last thing in the file, then we lose all the elements. so need to check if saved_elements is non-empty after the loop.
 '''
 
@@ -60,7 +59,7 @@ def walk(x):
                     array.append(new_element)
                     saved_elements = []
                     state = "free"
-                if item['t'] == 'Str' and is_wikilink_start(item['c']):
+                elif item['t'] == 'Str' and is_wikilink_start(item['c']):
                     state = "in"
                     wikilink_text = item['c'][len("[["):]
                     array.extend(saved_elements)

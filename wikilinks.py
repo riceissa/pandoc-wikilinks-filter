@@ -4,6 +4,16 @@ import json
 import sys
 import io
 
+def link(link_text, url):
+    return {
+            't': 'Link',
+            'c': [
+                  ["", [], []],
+                  [{'t': 'Str', "c": link_text}],
+                  [url, ""]
+                 ]
+           }
+
 def slugify(string):
     return string.lower().replace(" ", "-")
 
@@ -22,6 +32,12 @@ def wikilinked(source):
 
     return json.dumps(altered)
 
+'''
+two bugs:
+    - if a wikilink is a single word (opens and closes in same token), it doesn't work
+    - if wikilink is the last thing in the file, then we lose all the elements. so need to check if saved_elements is non-empty after the loop.
+'''
+
 # modified from https://github.com/jgm/pandocfilters/blob/06f4db99548a129c3ee8ac667436cb51a80c0f58/pandocfilters.py#L103
 def walk(x):
     # print("IN WALK:", x)
@@ -30,24 +46,28 @@ def walk(x):
         # like a wikilink and convert them to a Link, and not touch anything
         # else
         array = []
+        # In case we don't encounter a "]]" later, we'll have to
+        # append all the elements we _thought_ were going into a
+        # wikilink, so save them just in case
         saved_elements = []
         state = "free"
         for item in x:
             if isinstance(item, dict) and 't' in item:
+                if item['t'] == 'Str' and is_wikilink_start(item['c']) and is_wikilink_end(item['c']):
+                    array.extend(saved_elements)
+                    wikilink_text = item['c'][len("[["):-len("]]")]
+                    new_element = link(wikilink_text, "https://issarice.com/" + slugify(wikilink_text))
+                    array.append(new_element)
+                    saved_elements = []
+                    state = "free"
                 if item['t'] == 'Str' and is_wikilink_start(item['c']):
                     state = "in"
                     wikilink_text = item['c'][len("[["):]
-                    # In case we don't encounter a "]]" later, we'll have to
-                    # append all the elements we _thought_ were going into a
-                    # wikilink, so save them just in case
                     array.extend(saved_elements)
                     saved_elements = [item]
                 elif item['t'] == 'Str' and state == "in" and is_wikilink_end(item['c']):
                     wikilink_text += item['c'][:-len("]]")]
-                    new_element = {'t': 'Link',
-                                   'c': [["",[],[]],
-                                         [{"t":"Str", "c": wikilink_text}],
-                                         ["https://issarice.com/" + slugify(wikilink_text),""]]}
+                    new_element = link(wikilink_text, "https://issarice.com/" + slugify(wikilink_text))
                     array.append(new_element)
                     wikilink_text = None
                     saved_elements = []

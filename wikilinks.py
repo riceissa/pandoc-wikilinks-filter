@@ -59,37 +59,51 @@ def wikilinked(source):
 def f(x):
     string = ""
     for item in x:
-        if x['t'] == 'Space':
+        if item['t'] == 'Space':
             string += " "
         else:
-            string += x['c']
+            string += item['c']
     array = []
     state = "free"
+    saved_inner = ""
+    saved_outer = ""
     for c in string:
+        print(state, c, "in:", saved_inner, "out:", saved_outer)
         if state == "free" and c == "[":
             state = "1["
         elif state == "free":
-            pass
+            saved_outer += c
         elif state == "1[" and c == "[":
             state = "2["
         elif state == "1[":
             state = "free"
+            saved_outer += "[" + c
         elif state == "2[" and c == "[":
-            pass
+            saved_outer += "["
         elif state == "2[" and c == "]":
             state = "empty ]"
         elif state == "2[":
+            if saved_outer:
+                array.append({"t": "Str", "c": saved_outer})
+            saved_outer = ""
+            saved_inner = c
             state = "in"
         elif state == "empty ]" and c == "]":
             state = "free"
         elif state == "empty ]":
+            saved_inner = "]" + c
+            if saved_outer:
+                array.append({"t": "Str", "c": saved_outer})
+            saved_outer = ""
             state = "in"
         elif state == "in" and c == "]":
             state = "1]"
         elif state == "in":
-            pass
+            saved_inner += c
         elif state == "1]" and c == "]":
             state = "free"
+            array.append(link(saved_inner, "https://issarice.com/" + slugify(saved_inner)))
+            saved_inner = ""
         elif state == "1]":
             state = "in"
         else:
@@ -132,9 +146,10 @@ def walk(x):
         return x
 
 
+if __name__ == "__main__":
 
-# https://github.com/jgm/pandocfilters/blob/06f4db99548a129c3ee8ac667436cb51a80c0f58/pandocfilters.py#L170
-input_stream = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8')
+    # https://github.com/jgm/pandocfilters/blob/06f4db99548a129c3ee8ac667436cb51a80c0f58/pandocfilters.py#L170
+    input_stream = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8')
 
-source = input_stream.read()
-sys.stdout.write(wikilinked(source))
+    source = input_stream.read()
+    sys.stdout.write(wikilinked(source))

@@ -7,6 +7,12 @@ import io
 def slugify(string):
     return string.lower().replace(" ", "-")
 
+def is_wikilink_start(string):
+    return string.startswith("[[")
+
+def is_wikilink_end(string):
+    return string.endswith("]]")
+
 def wikilinked(source):
     doc = json.loads(source)
 
@@ -28,7 +34,7 @@ def walk(x):
         state = "free"
         for item in x:
             if isinstance(item, dict) and 't' in item:
-                if item['t'] == 'Str' and item['c'].startswith("[["):
+                if item['t'] == 'Str' and is_wikilink_start(item['c']):
                     state = "in"
                     wikilink_text = item['c'][len("[["):]
                     # In case we don't encounter a "]]" later, we'll have to
@@ -36,7 +42,7 @@ def walk(x):
                     # wikilink, so save them just in case
                     array.extend(saved_elements)
                     saved_elements = [item]
-                elif item['t'] == 'Str' and state == "in" and item['c'].endswith("]]"):
+                elif item['t'] == 'Str' and state == "in" and is_wikilink_end(item['c']):
                     wikilink_text += item['c'][:-len("]]")]
                     new_element = {'t': 'Link',
                                    'c': [["",[],[]],

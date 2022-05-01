@@ -68,7 +68,7 @@ def f(x):
     saved_inner = ""
     saved_outer = ""
     for c in string:
-        print(state, c, "in:", saved_inner, "out:", saved_outer)
+        # print(state, c, "in:", saved_inner, "out:", saved_outer, file=sys.stderr)
         if state == "free" and c == "[":
             state = "1["
         elif state == "free":
@@ -108,6 +108,12 @@ def f(x):
             state = "in"
         else:
             raise ValueError("This shouldn't happen")
+    # Only one of these should be non-empty
+    assert not (saved_inner and saved_outer)
+    if saved_inner:
+        array.append({"t": "Str", "c": "[[" + saved_inner})
+    if saved_outer:
+        array.append({"t": "Str", "c": saved_outer})
     return array
 
 

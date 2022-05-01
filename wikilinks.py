@@ -3,7 +3,6 @@
 import json
 import sys
 import io
-import pdb
 
 def wikilinked(source):
     doc = json.loads(source)
@@ -53,55 +52,6 @@ def walk(x):
             else:
                 array.append(walk(item))
                 state = "free"
-        # while True:
-        #     try:
-        #         x[i]['t']
-        #     except TypeError:
-        #         print(x)
-        #     if x[i]['t'] == 'Str' and x[i]['c'].startswith("[["):
-        #         state = "in"
-        #         wikilink_text = x[i]['c'][len("[["):]
-        #         initial_idx = i
-        #         length = 1
-        #         i += 1
-        #     elif x[i]['t'] == 'Str' and state == "in" and x[i]['c'].endswith("]]"):
-        #         wikilink_text += x[i]['c'][:len("]]")]
-        #         length += 1
-        #         # for k in range(initial_idx, initial_idx + length):
-        #         #     x.pop(k)
-        #         new_element = {'t': 'Link',
-        #                        'c': [["",[],[]],
-        #                              [{"t":"Str", "c": wikilink_text}],
-        #                              ["https://issarice.com",""]]}
-        #         # x.insert(initial_idx, new_element)
-        #         array.append(new_element)
-        #         state = "free"
-        #         # i = initial_idx + 1
-        #         i += 1
-        #         wikilink_text = None
-        #         initial_idx = None
-        #         length = None
-        #         if i >= len(x):
-        #             break
-        #     elif x[i]['t'] not in ['Str', 'Space']:
-        #         state = "free"
-        #         wikilink_text = None
-        #         initial_idx = None
-        #         length = None
-        #         array.append(walk(x[i]))
-        #         i += 1
-        #     elif x[i]['t'] == 'Space' and state == "in":
-        #         wikilink_text += " "
-        #         length += 1
-        #         i += 1
-        #     elif x[i]['t'] == 'Str' and state == "in":
-        #         wikilink_text += x[i]['c']
-        #         length += 1
-        #         i += 1
-        #     elif x[i]['t'] in ['Str', 'Space'] and state == "free":
-        #         i += 1
-        #     else:
-        #         raise ValueError("Unknown thing")
         return array
     elif isinstance(x, dict):
         return {k: walk(v) for k, v in x.items()}

@@ -21,30 +21,6 @@ def slugify(string):
 # TODO: hmm, what about things like "[[lol]][[blah]]"?
 # also things like "[[work]]ed"
 # also things like "[[test|hello]]"
-def wikilink_whole(string):
-    '''If string is a whole wikilink (i.e., includes both the opening and
-    closing brackets), then return the wikilinked text as a dictionary, with
-    the surrounding text preserved separately. Otherwise, return an empty
-    dictionary.'''
-    m = re.match(r'([^\[]*)\[\[([^\[\]]+)\]\](.*)$', string)
-    if m:
-        return {"before": group(1), "text": m.group(2), "after": m.group(3)}
-    else:
-        return ""
-
-def wikilink_start(string):
-    m = re.match(r'[^\[]*\[\[([^\[]+)$', string)
-    if m:
-        return m.group(1)
-    else:
-        return ""
-
-def wikilink_end(string):
-    m = re.match(r'([^\]]*)\]\]', string)
-    if m:
-        return m.group(1)
-    else:
-        return ""
 
 def wikilinked(source):
     doc = json.loads(source)

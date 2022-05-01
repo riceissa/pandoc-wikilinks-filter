@@ -56,6 +56,47 @@ def wikilinked(source):
     return json.dumps(altered)
 
 
+def f(x):
+    string = ""
+    for item in x:
+        if x['t'] == 'Space':
+            string += " "
+        else:
+            string += x['c']
+    array = []
+    state = "free"
+    for c in string:
+        if state == "free" and c == "[":
+            state = "1["
+        elif state == "free":
+            pass
+        elif state == "1[" and c == "[":
+            state = "2["
+        elif state == "1[":
+            state = "free"
+        elif state == "2[" and c == "[":
+            pass
+        elif state == "2[" and c == "]":
+            state = "empty ]"
+        elif state == "2[":
+            state = "in"
+        elif state == "empty ]" and c == "]":
+            state = "free"
+        elif state == "empty ]":
+            state = "in"
+        elif state == "in" and c == "]":
+            state = "1]"
+        elif state == "in":
+            pass
+        elif state == "1]" and c == "]":
+            state = "free"
+        elif state == "1]":
+            state = "in"
+        else:
+            raise ValueError("This shouldn't happen")
+    return array
+
+
 # modified from https://github.com/jgm/pandocfilters/blob/06f4db99548a129c3ee8ac667436cb51a80c0f58/pandocfilters.py#L103
 def walk(x):
     # print("IN WALK:", x)
@@ -68,50 +109,22 @@ def walk(x):
         # append all the elements we _thought_ were going into a
         # wikilink, so save them just in case
         saved_elements = []
-        state = "free"
         for item in x:
             if isinstance(item, dict) and 't' in item:
-                if item['t'] == 'Str' and wikilink_whole(item['c']):
-                    array.extend(saved_elements)
-                    wikilink_text = wikilink_whole(item['c'])
-                    new_element = link(wikilink_text, "https://issarice.com/" + slugify(wikilink_text))
-                    array.append(new_element)
-                    saved_elements = []
-                    state = "free"
-                elif item['t'] == 'Str' and wikilink_start(item['c']):
-                    state = "in"
-                    wikilink_text = wikilink_start(item['c'])
-                    array.extend(saved_elements)
-                    saved_elements = [item]
-                elif item['t'] == 'Str' and state == "in" and wikilink_end(item['c']):
-                    wikilink_text += wikilink_end(item['c'])
-                    new_element = link(wikilink_text, "https://issarice.com/" + slugify(wikilink_text))
-                    array.append(new_element)
-                    wikilink_text = None
-                    saved_elements = []
-                    state = "free"
-                elif item['t'] not in ['Str', 'Space']:
-                    state = "free"
-                    wikilink_text = None
-                    array.extend(saved_elements)
+                if item['t'] in ['Str', 'Space']:
+                    saved_elements.append(item)
+                else:
+                    # process the saved elements
+                    array.extend(f(saved_elements))
                     saved_elements = []
                     array.append(walk(item))
-                elif item['t'] == 'Space' and state == "in":
-                    saved_elements.append(item)
-                    wikilink_text += " "
-                elif item['t'] == 'Str' and state == "in":
-                    saved_elements.append(item)
-                    wikilink_text += item['c']
-                elif item['t'] in ['Str', 'Space'] and state == "free":
-                    array.append(item)
-                else:
-                    raise ValueError("Unknown thing")
             else:
+                array.extend(f(saved_elements))
+                saved_elements = []
                 array.append(walk(item))
-                state = "free"
         # If an unclosed wikilink is the last thing in the file, there is still
         # some saved elements that haven't been added to the array
-        array.extend(saved_elements)
+        array.extend(f(saved_elements))
         return array
     elif isinstance(x, dict):
         return {k: walk(v) for k, v in x.items()}

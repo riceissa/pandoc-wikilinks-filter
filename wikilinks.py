@@ -32,10 +32,6 @@ def wikilinked(source):
 
     return json.dumps(altered)
 
-'''
-two bugs:
-    - if wikilink is the last thing in the file, then we lose all the elements. so need to check if saved_elements is non-empty after the loop.
-'''
 
 # modified from https://github.com/jgm/pandocfilters/blob/06f4db99548a129c3ee8ac667436cb51a80c0f58/pandocfilters.py#L103
 def walk(x):
@@ -90,6 +86,9 @@ def walk(x):
             else:
                 array.append(walk(item))
                 state = "free"
+        # If an unclosed wikilink is the last thing in the file, there is still
+        # some saved elements that haven't been added to the array
+        array.extend(saved_elements)
         return array
     elif isinstance(x, dict):
         return {k: walk(v) for k, v in x.items()}

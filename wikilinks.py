@@ -15,8 +15,16 @@ def link(link_text, url):
                ]
            }
 
-def slugify(string):
-    return string.lower().replace(" ", "-")
+def slugify(s):
+    '''
+    "Slugify" the string s as follows: keep only the characters that are
+    alphabetic or numerical, and group them together; all other characters are
+    replaced by "-" and squeezed together.
+    '''
+    s = s.lower()
+    s = "".join(c if (c.isalpha() or c.isdigit()) else "-" for c in s)
+    s = "-".join(filter(bool, s.split("-")))
+    return s
 
 
 def wikilinked(source):

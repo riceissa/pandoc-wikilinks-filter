@@ -24,12 +24,8 @@ def slugify(string):
 
 def wikilinked(source):
     doc = json.loads(source)
-
-    altered = doc
-    altered = walk(altered)
-    # altered["blocks"] = walk(altered["blocks"])
-
-    return json.dumps(altered)
+    doc = walk(doc)
+    return json.dumps(doc)
 
 
 def f(x):

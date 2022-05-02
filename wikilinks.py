@@ -39,6 +39,7 @@ def f(x):
     state = "free"
     saved_inner = ""
     saved_outer = ""
+    # TODO: check the state transitions here more closely.
     for c in string:
         # print(state, c, "in:", saved_inner, "out:", saved_outer, file=sys.stderr)
         if state == "free" and c == "[":

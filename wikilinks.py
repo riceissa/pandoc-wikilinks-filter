@@ -3,7 +3,9 @@
 import json
 import sys
 import io
+import argparse
 
+BASE_URL = ""
 
 def link(link_text, url):
     return {
@@ -96,9 +98,9 @@ def process_elements(x):
             state = "free"
             if "|" in saved_inner:
                 target, text = saved_inner.split("|", 1)
-                array.append(link(text, "https://issarice.com/" + slugify(target)))
+                array.append(link(text, BASE_URL + slugify(target)))
             else:
-                array.append(link(saved_inner, "https://issarice.com/" + slugify(saved_inner)))
+                array.append(link(saved_inner, BASE_URL + slugify(saved_inner)))
             saved_inner = ""
         elif state == "1]":
             state = "in"
@@ -153,6 +155,17 @@ def walk(x):
 
 
 if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(description='A Pandoc filter to convert wikilinks.')
+    parser.add_argument('--base-url', nargs='?',
+                        help=('The base URL that all wikilinks will use.'
+                              ' For example, if BASE_URL is'
+                              ' "https://example.com/", then [[wikilink]]'
+                              ' will be converted to'
+                              ' [wikilink](https://example.com/wikilink).'),
+                        default='')
+    args = parser.parse_args()
+    BASE_URL = args.base_url
 
     # https://github.com/jgm/pandocfilters/blob/06f4db99548a129c3ee8ac667436cb51a80c0f58/pandocfilters.py#L170
     input_stream = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8')

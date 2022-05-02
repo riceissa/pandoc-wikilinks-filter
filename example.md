@@ -12,3 +12,5 @@ And now, a wikilink with a [[loll how about this|target]] different from the dis
 should not work]]
 
 $this should [[not work]]$
+
+[[I said I'll do my chores]]

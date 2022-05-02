@@ -3,7 +3,6 @@
 import json
 import sys
 import io
-import re
 
 def link(link_text, url):
     return {
@@ -38,6 +37,12 @@ def f(x):
     saved_outer = ""
     # TODO: check the state transitions here more closely.
     for c in string:
+        # At every point in time, we should either be inside a wikilink or
+        # outside of it, but not both, we should only be using one of
+        # saved_inner or saved_outer. This means that we could get away with
+        # using just a single variable "saved", but I think that would be a bit
+        # more confusing to think about.
+        assert not (saved_inner and saved_outer)
         # print(state, c, "in:", saved_inner, "out:", saved_outer, file=sys.stderr)
         if state == "free" and c == "[":
             state = "1["

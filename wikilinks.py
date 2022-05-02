@@ -107,7 +107,7 @@ def process_elements(x):
             raise ValueError("This shouldn't happen")
     # Only one of these should be non-empty, for the same reasoning as above.
     assert not (saved_inner and saved_outer)
-    print(x, state, saved_inner, file=sys.stderr)
+    # print(x, state, saved_inner, file=sys.stderr)
     if state == "in":
         array.append({"t": "Str", "c": "[[" + saved_inner})
     elif state == "1[":

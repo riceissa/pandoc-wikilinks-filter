@@ -7,12 +7,12 @@ import re
 
 def link(link_text, url):
     return {
-            't': 'Link',
-            'c': [
-                  ["", [], []],
-                  [{'t': 'Str', "c": link_text}],
-                  [url, ""]
-                 ]
+               't': 'Link',
+               'c': [
+                   ["", [], []],
+                   [{'t': 'Str', "c": link_text}],
+                   [url, ""]
+               ]
            }
 
 def slugify(string):

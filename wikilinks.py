@@ -4,12 +4,6 @@ import json
 import sys
 import io
 
-'''
-Note, \[\[blah\]\] will still be converted to a wikilink, because pandoc's
-markdown reader will convert this to [[blah]]. respecting backslash escaping
-will require modifying pandoc's internal json representation: there's no way
-for pandoc to distinguish between these two representations.
-'''
 
 def link(link_text, url):
     return {

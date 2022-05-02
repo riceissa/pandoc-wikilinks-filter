@@ -42,10 +42,10 @@ def f(x):
     state = "free"
     saved_inner = ""
     saved_outer = ""
-    # TODO: check the state transitions here more closely.
     for c in string:
-        # At every point in time, we should either be inside a wikilink or
-        # outside of it, but not both, we should only be using one of
+        # At every point in time, we should be exactly one of: (1) inside a
+        # wikilink ("in"), (2) outside a wikilink ("free"), or (3) in between
+        # (one of the bracket states). So we should only be using one of
         # saved_inner or saved_outer. This means that we could get away with
         # using just a single variable "saved", but I think that would be a bit
         # more confusing to think about.
@@ -71,6 +71,9 @@ def f(x):
             saved_inner = c
             state = "in"
         elif state == "empty ]" and c == "]":
+            if saved_outer:
+                array.append({"t": "Str", "c": saved_outer})
+            saved_outer = ""
             state = "free"
         elif state == "empty ]":
             saved_inner = "]" + c
@@ -95,15 +98,20 @@ def f(x):
             saved_inner += "]" + c
         else:
             raise ValueError("This shouldn't happen")
-    # Only one of these should be non-empty
+    # Only one of these should be non-empty, for the same reasoning as above.
     assert not (saved_inner and saved_outer)
-    if saved_inner:
+    print(x, state, saved_inner, file=sys.stderr)
+    if state == "in":
         array.append({"t": "Str", "c": "[[" + saved_inner})
-    if state == "1[":
+    elif state == "1[":
         array.append({"t": "Str", "c": "["})
-    if state == "2[":
+    elif state == "2[":
         array.append({"t": "Str", "c": "[["})
-    if saved_outer:
+    elif state == "empty ]":
+        array.append({"t": "Str", "c": "[[]"})
+    elif state == "1]":
+        array.append({"t": "Str", "c": "[[" + saved_inner + "]"})
+    elif state == "free" and saved_outer:
         array.append({"t": "Str", "c": saved_outer})
     return array
 

@@ -18,9 +18,6 @@ def link(link_text, url):
 def slugify(string):
     return string.lower().replace(" ", "-")
 
-# TODO: hmm, what about things like "[[lol]][[blah]]"?
-# also things like "[[work]]ed"
-# also things like "[[test|hello]]"
 
 def wikilinked(source):
     doc = json.loads(source)

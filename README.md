@@ -13,8 +13,9 @@ element), so I don't believe it can be done by
 modified the `walk(...)` function in pandocfilters to have the flexibility to
 process "sibling" elements at once.
 
-Note, writing `\[\[blah\]\]` in the Markdown source will still be converted to
-a wikilink, because Pandoc's Markdown reader will convert this to
-`{"t":"Str","c":"[[blah]]"}` in the JSON representation. Respecting backslash
-escaping will require modifying Pandoc's internal JSON representation: there's
-no way for Pandoc to distinguish between these two representations.
+Backslash escaping does not work with wikilinks: `\[\[blah\]\]` will still be
+converted to a wikilink. This happens because Pandoc's Markdown reader will
+convert both `[[blah]]` and `\[\[blah\]\]` to `{"t":"Str","c":"[[blah]]"}` in
+the JSON representation. Respecting backslash escaping will require modifying
+Pandoc's Markdown reader and internal JSON representation, so cannot be done
+purely via scripting.

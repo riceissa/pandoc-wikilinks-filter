@@ -75,7 +75,11 @@ def f(x):
             saved_inner += c
         elif state == "1]" and c == "]":
             state = "free"
-            array.append(link(saved_inner, "https://issarice.com/" + slugify(saved_inner)))
+            if "|" in saved_inner:
+                target, text = saved_inner.split("|", 1)
+                array.append(link(text, "https://issarice.com/" + slugify(target)))
+            else:
+                array.append(link(saved_inner, "https://issarice.com/" + slugify(saved_inner)))
             saved_inner = ""
         elif state == "1]":
             state = "in"

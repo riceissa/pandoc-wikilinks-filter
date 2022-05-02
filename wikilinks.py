@@ -25,7 +25,12 @@ def wikilinked(source):
     return json.dumps(doc)
 
 
-def f(x):
+def process_elements(x):
+    """
+    Given a list containing just Str and Space elements, like
+    [{"t":"Str","c":"[[hello"},{"t":"Space"},{"t":"Str","c":"world]]"}]
+    convert all wikilinks into actual links.
+    """
     string = ""
     for item in x:
         if item['t'] == 'Space':
@@ -127,11 +132,11 @@ def walk(x):
                 saved_elements.append(item)
             else:
                 # Process the saved elements
-                array.extend(f(saved_elements))
+                array.extend(process_elements(saved_elements))
                 saved_elements = []
 
                 array.append(walk(item))
-        array.extend(f(saved_elements))
+        array.extend(process_elements(saved_elements))
         return array
     elif isinstance(x, dict):
         return {k: walk(v) for k, v in x.items()}

@@ -83,6 +83,7 @@ def f(x):
             saved_inner = ""
         elif state == "1]":
             state = "in"
+            saved_inner += "]" + c
         else:
             raise ValueError("This shouldn't happen")
     # Only one of these should be non-empty

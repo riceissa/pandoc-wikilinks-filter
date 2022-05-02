@@ -89,6 +89,10 @@ def f(x):
     assert not (saved_inner and saved_outer)
     if saved_inner:
         array.append({"t": "Str", "c": "[[" + saved_inner})
+    if state == "1[":
+        array.append({"t": "Str", "c": "["})
+    if state == "2[":
+        array.append({"t": "Str", "c": "[["})
     if saved_outer:
         array.append({"t": "Str", "c": saved_outer})
     return array

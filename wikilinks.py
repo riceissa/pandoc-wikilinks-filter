@@ -41,12 +41,20 @@ def process_elements(x):
     [{"t":"Str","c":"[[hello"},{"t":"Space"},{"t":"Str","c":"world]]"}]
     convert all wikilinks into actual links.
     """
+    return process_string(stringify_elements_list(x))
+
+def stringify_elements_list(x):
+    """We assume that only Str and Space elements appear in a flat (i.e., not
+    nested) list."""
     string = ""
     for item in x:
         if item['t'] == 'Space':
             string += " "
         else:
             string += item['c']
+    return string
+
+def process_string(string):
     array = []
     state = "free"
     saved_inner = ""
@@ -113,9 +121,9 @@ def process_elements(x):
     if state == "in":
         array.append({"t": "Str", "c": "[[" + saved_inner})
     elif state == "1[":
-        array.append({"t": "Str", "c": "["})
+        array.append({"t": "Str", "c": saved_outer + "["})
     elif state == "2[":
-        array.append({"t": "Str", "c": "[["})
+        array.append({"t": "Str", "c": saved_outer + "[["})
     elif state == "empty ]":
         array.append({"t": "Str", "c": "[[]"})
     elif state == "1]":

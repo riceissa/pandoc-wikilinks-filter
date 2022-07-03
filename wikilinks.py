@@ -6,6 +6,8 @@ import io
 import argparse
 
 BASE_URL = ""
+SAVE_LINKS = ""
+LINKS = []
 
 def link(link_text, url):
     return {
@@ -107,8 +109,12 @@ def process_string(string):
             if "|" in saved_inner:
                 target, text = saved_inner.split("|", 1)
                 array.append(link(text, BASE_URL + slugify(target)))
+                if SAVE_LINKS:
+                    LINKS.append(slugify(target))
             else:
                 array.append(link(saved_inner, BASE_URL + slugify(saved_inner)))
+                if SAVE_LINKS:
+                    LINKS.append(slugify(saved_inner))
             saved_inner = ""
         elif state == "1]":
             state = "in"
@@ -172,11 +178,24 @@ if __name__ == "__main__":
                               ' will be converted to'
                               ' [wikilink](https://example.com/wikilink).'),
                         default='')
+    parser.add_argument('--save-links', nargs='?', default='')
+    parser.add_argument('--filename', nargs='?', default='', help="name to use for the input file. this is only used when --save-links is invoked. for regular use without --save-links, wikilinks.py does not need to know the filename as it just accepts from stdin.")
     args = parser.parse_args()
     BASE_URL = args.base_url
+    SAVE_LINKS = args.save_links
 
     # https://github.com/jgm/pandocfilters/blob/06f4db99548a129c3ee8ac667436cb51a80c0f58/pandocfilters.py#L170
     input_stream = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8')
 
     source = input_stream.read()
     sys.stdout.write(wikilinked(source))
+
+    if SAVE_LINKS:
+        if not args.filename:
+            print("--save-links feature requires a filename", file=sys.stderr)
+            sys.exit()
+        with open(SAVE_LINKS, "a") as f:
+            f.write('"' + args.filename.replace('"', '\\"') + '": [' +
+                    ", ".join(map(lambda x: '"' + x.replace('"', '\\"') +
+                                  '"', LINKS)) +
+                    '],\n')

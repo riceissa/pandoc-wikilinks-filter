@@ -190,7 +190,8 @@ if __name__ == "__main__":
                               " Having such a file is useful if"
                               " for instance one wants to invert the"
                               " link graph to create Roam-style"
-                              " backlinks sections."))
+                              " backlinks sections. The --base-url"
+                              " flag is ignored when using this option."))
     args = parser.parse_args()
     BASE_URL = args.base_url
     SAVE_LINKS = args.save_links

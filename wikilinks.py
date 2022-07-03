@@ -6,7 +6,7 @@ import io
 import argparse
 
 BASE_URL = ""
-SAVE_LINKS = ""
+SAVE_LINKS = False
 LINKS = []
 
 def link(link_text, url):
@@ -178,10 +178,7 @@ if __name__ == "__main__":
                               ' will be converted to'
                               ' [wikilink](https://example.com/wikilink).'),
                         default='')
-    parser.add_argument('--save-links', nargs='?', default='', help="Save wikilinks in a file specified by this flag. Wikilinks will be appended to this file, so that running this script with a bunch of markdown files will collect wikilinks for all input files, thereby building a link graph. Having such a file is useful if for instance one wants to invert the link graph to create Roam-style backlinks sections. To use this flag, one must also specify a filename to associate with the current file, using the --filename flag.")
-    parser.add_argument('--filename', nargs='?', default='', help="name to use for the input file. this is only used when --save-links is invoked. for regular use without --save-links, wikilinks.py does not need to know the filename as it just accepts from stdin.")
-    parser.add_argument('--save-links-prefix', nargs='?', default='')
-    parser.add_argument('--save-links-postfix', nargs='?', default=',')
+    parser.add_argument('--save-links', action="store_true", help="Save wikilinks in a file specified by this flag. Wikilinks will be appended to this file, so that running this script with a bunch of markdown files will collect wikilinks for all input files, thereby building a link graph. Having such a file is useful if for instance one wants to invert the link graph to create Roam-style backlinks sections. To use this flag, one must also specify a filename to associate with the current file, using the --filename flag.")
     args = parser.parse_args()
     BASE_URL = args.base_url
     SAVE_LINKS = args.save_links
@@ -195,11 +192,6 @@ if __name__ == "__main__":
         sys.stdout.write(wikilinked_source)
 
     if SAVE_LINKS:
-        if not args.filename:
-            print("--save-links feature requires a filename", file=sys.stderr)
-            sys.exit()
-        # with open(SAVE_LINKS, "a") as f:
-        sys.stdout.write(args.save_links_prefix + '"' + args.filename.replace('"', '\\"') + '": [' +
-                ", ".join(map(lambda x: '"' + x.replace('"', '\\"') +
-                              '"', LINKS)) +
-                ']' + args.save_links_postfix + '\n')
+        sys.stdout.write('[' +
+            ", ".join(map(lambda x: '"' + x.replace('"', '\\"') + '"', LINKS)) +
+            ']\n')

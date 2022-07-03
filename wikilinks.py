@@ -110,11 +110,11 @@ def process_string(string):
                 target, text = saved_inner.split("|", 1)
                 array.append(link(text, BASE_URL + slugify(target)))
                 if SAVE_LINKS:
-                    LINKS.append(slugify(target))
+                    LINKS.append(target)
             else:
                 array.append(link(saved_inner, BASE_URL + slugify(saved_inner)))
                 if SAVE_LINKS:
-                    LINKS.append(slugify(saved_inner))
+                    LINKS.append(saved_inner)
             saved_inner = ""
         elif state == "1]":
             state = "in"

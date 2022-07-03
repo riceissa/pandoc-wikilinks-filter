@@ -178,7 +178,19 @@ if __name__ == "__main__":
                               ' will be converted to'
                               ' [wikilink](https://example.com/wikilink).'),
                         default='')
-    parser.add_argument('--save-links', action="store_true", help="Save wikilinks in a file specified by this flag. Wikilinks will be appended to this file, so that running this script with a bunch of markdown files will collect wikilinks for all input files, thereby building a link graph. Having such a file is useful if for instance one wants to invert the link graph to create Roam-style backlinks sections. To use this flag, one must also specify a filename to associate with the current file, using the --filename flag.")
+    parser.add_argument('--save-links', action="store_true",
+                        help=("Instead of rewriting the JSON document tree,"
+                              " print out the wikilinks appearing in "
+                              "the document. The format of the wikilinks"
+                              " will be a JSON/Python list. By running"
+                              " wikilinks.py with this flag on a bunch"
+                              " of markdown files, it is possible to build"
+                              " a link graph that captures the graphical"
+                              " link structure of those markdown files."
+                              " Having such a file is useful if"
+                              " for instance one wants to invert the"
+                              " link graph to create Roam-style"
+                              " backlinks sections."))
     args = parser.parse_args()
     BASE_URL = args.base_url
     SAVE_LINKS = args.save_links

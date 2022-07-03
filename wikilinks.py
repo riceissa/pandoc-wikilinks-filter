@@ -190,14 +190,16 @@ if __name__ == "__main__":
     input_stream = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8')
 
     source = input_stream.read()
-    sys.stdout.write(wikilinked(source))
+    wikilinked_source = wikilinked(source)
+    if not SAVE_LINKS:
+        sys.stdout.write(wikilinked_source)
 
     if SAVE_LINKS:
         if not args.filename:
             print("--save-links feature requires a filename", file=sys.stderr)
             sys.exit()
-        with open(SAVE_LINKS, "a") as f:
-            f.write(args.save_links_prefix + '"' + args.filename.replace('"', '\\"') + '": [' +
-                    ", ".join(map(lambda x: '"' + x.replace('"', '\\"') +
-                                  '"', LINKS)) +
-                    ']' + args.save_links_postfix + '\n')
+        # with open(SAVE_LINKS, "a") as f:
+        sys.stdout.write(args.save_links_prefix + '"' + args.filename.replace('"', '\\"') + '": [' +
+                ", ".join(map(lambda x: '"' + x.replace('"', '\\"') +
+                              '"', LINKS)) +
+                ']' + args.save_links_postfix + '\n')

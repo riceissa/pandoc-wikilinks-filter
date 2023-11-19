@@ -1,5 +1,10 @@
 # Pandoc wikilinks filter
 
+**NOTE:** After I wrote this filter, Pandoc ([starting in version 3.0](https://github.com/jgm/pandoc/releases/tag/3.0))
+implemented a Markdown extension
+that does this, so you should probably just use that instead of this filter. See
+<https://pandoc.org/MANUAL.html#extension-wikilinks_title_after_pipe> for more information.
+
 Use as follows:
 
 ```bash
